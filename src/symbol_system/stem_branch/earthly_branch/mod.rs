@@ -30,5 +30,3 @@ pub enum EarthlyBranch {
     /// 亥
     Hai,
 }
-
-pub use relationship::EarthlyBranchRelationship;
