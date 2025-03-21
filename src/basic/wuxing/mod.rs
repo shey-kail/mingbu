@@ -1,5 +1,9 @@
 //! 五行模块，定义五行相关的基本类型和特征
 
+mod relationship;
+
+pub use relationship::WuXingRelation;
+
 /// 五行枚举，表示事物的五行属性
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WuXing {
@@ -13,30 +17,6 @@ pub enum WuXing {
     Metal,
     /// 水
     Water,
-}
-
-impl WuXing {
-    /// 获取相生的五行
-    pub fn generating(&self) -> Self {
-        match self {
-            WuXing::Wood => WuXing::Fire,
-            WuXing::Fire => WuXing::Earth,
-            WuXing::Earth => WuXing::Metal,
-            WuXing::Metal => WuXing::Water,
-            WuXing::Water => WuXing::Wood,
-        }
-    }
-
-    /// 获取相克的五行
-    pub fn overcoming(&self) -> Self {
-        match self {
-            WuXing::Wood => WuXing::Earth,
-            WuXing::Earth => WuXing::Water,
-            WuXing::Water => WuXing::Fire,
-            WuXing::Fire => WuXing::Metal,
-            WuXing::Metal => WuXing::Wood,
-        }
-    }
 }
 
 impl std::fmt::Display for WuXing {

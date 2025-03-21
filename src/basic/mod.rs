@@ -3,5 +3,5 @@
 mod yinyang;
 mod wuxing;
 
-pub use wuxing::WuXing;
+pub use wuxing::{WuXing, WuXingRelation};
 pub use yinyang::YinYang;
