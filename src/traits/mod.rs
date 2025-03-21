@@ -3,10 +3,10 @@
 /// 中文名称特征，用于获取事物的中文名称
 pub trait ChineseName {
     /// 获取中文名称
-    fn chinese_name(&self) -> String;
+    fn chinese_name(&self) -> &'static str;
 }
 
-/// 索引特征，用于获取事物在序列中的索引
+/// 索引特征，用于获取事物在序列中的索引，索引从1开始
 pub trait Index {
     /// 从索引创建实例
     fn from_index(index: usize) -> Self;
@@ -26,8 +26,10 @@ pub trait Iter {
 /// 关系特征，用于描述事物间的双方关系
 pub trait Relationship {
     type Item;
-    /// 获取与目标的关系（双方关系）
+    /// 获取我对目标的关系（双方关系）
     fn relationship_with(&self, other: &Self) -> Self::Item;
+    /// 根据给定的关系反向推导出对应的目标
+    fn from_relationship(&self, relationship: Self::Item) -> Self;
 }
 
 /// 三方关系特征，用于描述事物间的三方关系
