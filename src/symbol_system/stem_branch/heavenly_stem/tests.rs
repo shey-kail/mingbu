@@ -64,11 +64,17 @@ mod tests {
     }
 
     #[test]
-    fn test_iter() {
+    fn test_iter_next() {
         assert_eq!(HeavenlyStem::Jia.next(), HeavenlyStem::Yi);
         assert_eq!(HeavenlyStem::Yi.next(), HeavenlyStem::Bing);
         assert_eq!(HeavenlyStem::Gui.next(), HeavenlyStem::Jia);
+    }
 
+    #[test]
+    fn test_iter_prev() {
+        println!("{:?}", HeavenlyStem::Jia.prev());
+        println!("{:?}", HeavenlyStem::Yi.prev());
+        println!("{:?}", HeavenlyStem::Gui.prev());
         assert_eq!(HeavenlyStem::Jia.prev(), HeavenlyStem::Gui);
         assert_eq!(HeavenlyStem::Yi.prev(), HeavenlyStem::Jia);
         assert_eq!(HeavenlyStem::Gui.prev(), HeavenlyStem::Ren);
