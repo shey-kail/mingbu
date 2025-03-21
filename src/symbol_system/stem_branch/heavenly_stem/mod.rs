@@ -112,6 +112,6 @@ impl Iter for HeavenlyStem {
     }
 
     fn prev(&self) -> Self::Item {
-        Self::from_index((self.index() + 9) % 10)
+        Self::from_index(self.index() + 9)
     }
 }
