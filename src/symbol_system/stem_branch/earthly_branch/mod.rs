@@ -2,6 +2,7 @@
 
 mod relationship;
 
+use crate::traits::{Index, ChineseName, Iter};
 /// 地支枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EarthlyBranch {
@@ -30,3 +31,29 @@ pub enum EarthlyBranch {
     /// 亥
     Hai,
 }
+
+impl ChineseName for EarthlyBranch {
+    fn chinese_name(&self) -> &'static str {
+
+    }
+}
+
+impl Index for EarthlyBranch {
+    fn from_index(index: usize) -> Self {
+
+    }
+    fn index(&self) -> usize {
+
+    }
+}
+
+impl Iter for EarthlyBranch {
+    type Item = EarthlyBranch;
+    fn next(&self) -> Self::Item {
+
+    }
+    fn prev(&self) -> Self::Item {
+
+    }
+}
+
