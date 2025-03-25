@@ -33,80 +33,80 @@ impl std::fmt::Display for WuXingRelation {
 impl Relationship for WuXing {
     type Item = WuXingRelation;
 
-    fn relationship_with(&self, other: &Self) -> Self::Item {
+    fn relationship_with(&self, other: &Self) -> Vec<Self::Item> {
         match (self, other) {
             // 木生火
-            (WuXing::Wood, WuXing::Fire) => WuXingRelation::Generating,
-            (WuXing::Fire, WuXing::Wood) => WuXingRelation::BeingGenerated,
+            (WuXing::Wood, WuXing::Fire) => vec![WuXingRelation::Generating],
+            (WuXing::Fire, WuXing::Wood) => vec![WuXingRelation::BeingGenerated],
             // 火生土
-            (WuXing::Fire, WuXing::Earth) => WuXingRelation::Generating,
-            (WuXing::Earth, WuXing::Fire) => WuXingRelation::BeingGenerated,
+            (WuXing::Fire, WuXing::Earth) => vec![WuXingRelation::Generating],
+            (WuXing::Earth, WuXing::Fire) => vec![WuXingRelation::BeingGenerated],
             // 土生金
-            (WuXing::Earth, WuXing::Metal) => WuXingRelation::Generating,
-            (WuXing::Metal, WuXing::Earth) => WuXingRelation::BeingGenerated,
+            (WuXing::Earth, WuXing::Metal) => vec![WuXingRelation::Generating],
+            (WuXing::Metal, WuXing::Earth) => vec![WuXingRelation::BeingGenerated],
             // 金生水
-            (WuXing::Metal, WuXing::Water) => WuXingRelation::Generating,
-            (WuXing::Water, WuXing::Metal) => WuXingRelation::BeingGenerated,
+            (WuXing::Metal, WuXing::Water) => vec![WuXingRelation::Generating],
+            (WuXing::Water, WuXing::Metal) => vec![WuXingRelation::BeingGenerated],
             // 水生木
-            (WuXing::Water, WuXing::Wood) => WuXingRelation::Generating,
-            (WuXing::Wood, WuXing::Water) => WuXingRelation::BeingGenerated,
+            (WuXing::Water, WuXing::Wood) => vec![WuXingRelation::Generating],
+            (WuXing::Wood, WuXing::Water) => vec![WuXingRelation::BeingGenerated],
             // 木克土
-            (WuXing::Wood, WuXing::Earth) => WuXingRelation::Overcoming,
-            (WuXing::Earth, WuXing::Wood) => WuXingRelation::BeingOvercome,
+            (WuXing::Wood, WuXing::Earth) => vec![WuXingRelation::Overcoming],
+            (WuXing::Earth, WuXing::Wood) => vec![WuXingRelation::BeingOvercome],
             // 土克水
-            (WuXing::Earth, WuXing::Water) => WuXingRelation::Overcoming,
-            (WuXing::Water, WuXing::Earth) => WuXingRelation::BeingOvercome,
+            (WuXing::Earth, WuXing::Water) => vec![WuXingRelation::Overcoming],
+            (WuXing::Water, WuXing::Earth) => vec![WuXingRelation::BeingOvercome],
             // 水克火
-            (WuXing::Water, WuXing::Fire) => WuXingRelation::Overcoming,
-            (WuXing::Fire, WuXing::Water) => WuXingRelation::BeingOvercome,
+            (WuXing::Water, WuXing::Fire) => vec![WuXingRelation::Overcoming],
+            (WuXing::Fire, WuXing::Water) => vec![WuXingRelation::BeingOvercome],
             // 火克金
-            (WuXing::Fire, WuXing::Metal) => WuXingRelation::Overcoming,
-            (WuXing::Metal, WuXing::Fire) => WuXingRelation::BeingOvercome,
+            (WuXing::Fire, WuXing::Metal) => vec![WuXingRelation::Overcoming],
+            (WuXing::Metal, WuXing::Fire) => vec![WuXingRelation::BeingOvercome],
             // 金克木
-            (WuXing::Metal, WuXing::Wood) => WuXingRelation::Overcoming,
-            (WuXing::Wood, WuXing::Metal) => WuXingRelation::BeingOvercome,
+            (WuXing::Metal, WuXing::Wood) => vec![WuXingRelation::Overcoming],
+            (WuXing::Wood, WuXing::Metal) => vec![WuXingRelation::BeingOvercome],
 
             // 其他情况就是相同
-            _ => WuXingRelation::Same,
+            _ => vec![WuXingRelation::Same],
         }
     }
 
-    fn from_relationship(&self, relationship: Self::Item) -> Self {
+    fn from_relationship(&self, relationship: Self::Item) -> Option<Self> {
         match relationship {
             WuXingRelation::Generating => match self {
-                WuXing::Wood => WuXing::Fire,
-                WuXing::Fire => WuXing::Earth,
-                WuXing::Earth => WuXing::Metal,
-                WuXing::Metal => WuXing::Water,
-                WuXing::Water => WuXing::Wood,
+                WuXing::Wood => Some(WuXing::Fire),
+                WuXing::Fire => Some(WuXing::Earth),
+                WuXing::Earth => Some(WuXing::Metal),
+                WuXing::Metal => Some(WuXing::Water),
+                WuXing::Water => Some(WuXing::Wood),
             },
             WuXingRelation::BeingGenerated => match self {
-                WuXing::Wood => WuXing::Water,
-                WuXing::Fire => WuXing::Wood,
-                WuXing::Earth => WuXing::Fire,
-                WuXing::Metal => WuXing::Earth,
-                WuXing::Water => WuXing::Metal,
+                WuXing::Wood => Some(WuXing::Water),
+                WuXing::Fire => Some(WuXing::Wood),
+                WuXing::Earth => Some(WuXing::Fire),
+                WuXing::Metal => Some(WuXing::Earth),
+                WuXing::Water => Some(WuXing::Metal),
             },
             WuXingRelation::Overcoming => match self {
-                WuXing::Wood => WuXing::Earth,
-                WuXing::Fire => WuXing::Metal,
-                WuXing::Earth => WuXing::Water,
-                WuXing::Metal => WuXing::Wood,
-                WuXing::Water => WuXing::Fire,
+                WuXing::Wood => Some(WuXing::Earth),
+                WuXing::Fire => Some(WuXing::Metal),
+                WuXing::Earth => Some(WuXing::Water),
+                WuXing::Metal => Some(WuXing::Wood),
+                WuXing::Water => Some(WuXing::Fire),
             },
             WuXingRelation::BeingOvercome => match self {
-                WuXing::Wood => WuXing::Metal,
-                WuXing::Fire => WuXing::Water,
-                WuXing::Earth => WuXing::Wood,
-                WuXing::Metal => WuXing::Fire,
-                WuXing::Water => WuXing::Earth,
+                WuXing::Wood => Some(WuXing::Metal),
+                WuXing::Fire => Some(WuXing::Water),
+                WuXing::Earth => Some(WuXing::Wood),
+                WuXing::Metal => Some(WuXing::Fire),
+                WuXing::Water => Some(WuXing::Earth),
             },
             WuXingRelation::Same => match self {
-                WuXing::Wood => WuXing::Metal,
-                WuXing::Fire => WuXing::Water,
-                WuXing::Earth => WuXing::Wood,
-                WuXing::Metal => WuXing::Fire,
-                WuXing::Water => WuXing::Earth,
+                WuXing::Wood => Some(WuXing::Metal),
+                WuXing::Fire => Some(WuXing::Water),
+                WuXing::Earth => Some(WuXing::Wood),
+                WuXing::Metal => Some(WuXing::Fire),
+                WuXing::Water => Some(WuXing::Earth),
             }
         }
     }

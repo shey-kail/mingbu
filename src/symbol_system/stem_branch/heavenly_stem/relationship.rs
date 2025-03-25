@@ -2,10 +2,17 @@
 
 use super::HeavenlyStem;
 use crate::traits::Relationship;
-use crate::basic::WuXingRelation;
-use crate::basic::{YinYang, WuXing};
+use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
+use crate::basic::{YinYang, WuXing, WuXingRelation};
 
-/// 天干关系枚举
+// 天干关系枚举
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HeavenlyStemRelationship {
+    /// 五合
+    Harmony(WuXing),  
+}
+
+/// 十神枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TenGods {
     /// 正印：生我者
@@ -31,108 +38,69 @@ pub enum TenGods {
 }
 
 impl Relationship for HeavenlyStem {
-    type Item = TenGods;
+    type Item = HeavenlyStemRelationship;
 
-    fn relationship_with(&self, other: &Self) -> Self::Item {
-        let self_wuxing = self.wuxing();
-        let other_wuxing = other.wuxing();
-        let wuxing_relationship = self_wuxing.relationship_with(&other_wuxing);
-        let is_yinyang_same = self.yinyang() == other.yinyang();
-
-        match (wuxing_relationship, is_yinyang_same) {
-            // 正印, 生我者
-            (WuXingRelation::BeingGenerated, false) => TenGods::ZhengYin,
-            // 偏印, 生我者
-            (WuXingRelation::BeingGenerated, true) => TenGods::PianYin,
-            // 正官, 克我者
-            (WuXingRelation::BeingOvercome, false) => TenGods::ZhengGuan,
-            // 七杀, 克我者
-            (WuXingRelation::BeingOvercome, true) => TenGods::QiSha,
-            // 正财, 我克者
-            (WuXingRelation::Overcoming, false) => TenGods::ZhengCai,
-            // 偏财, 我克者
-            (WuXingRelation::Overcoming, true) => TenGods::PianCai,
-            // 比肩, 同我者
-            (WuXingRelation::Same, true) => TenGods::BiJian,
-            // 劫财, 同我者
-            (WuXingRelation::Same, false) => TenGods::JieCai,
-            // 食神, 我生者
-            (WuXingRelation::Generating, false) => TenGods::ShiShen,
-            // 伤官, 我生者
-            (WuXingRelation::Generating, true) => TenGods::ShangGuan,
+    fn relationship_with(&self, other: &Self) -> Vec<Self::Item> {
+        match (self, other) {
+            // 甲己合土
+            (HeavenlyStem::Jia, HeavenlyStem::Ji)
+            | (HeavenlyStem::Ji, HeavenlyStem::Jia) => {
+                vec![
+                    HeavenlyStemRelationship::Harmony(WuXing::Earth)
+                ]
+            },
+            // 乙庚合金
+            (HeavenlyStem::Yi, HeavenlyStem::Geng)
+            | (HeavenlyStem::Geng, HeavenlyStem::Yi) => {
+                vec![
+                    HeavenlyStemRelationship::Harmony(WuXing::Metal)
+                ]
+            },
+            // 丙辛合水
+            (HeavenlyStem::Bing, HeavenlyStem::Xin)
+            | (HeavenlyStem::Xin, HeavenlyStem::Bing) => {
+                vec![
+                    HeavenlyStemRelationship::Harmony(WuXing::Water)
+                ]
+            },
+            // 丁壬合木
+            (HeavenlyStem::Ding, HeavenlyStem::Ren)
+            | (HeavenlyStem::Ren, HeavenlyStem::Ding) => {
+                vec![
+                    HeavenlyStemRelationship::Harmony(WuXing::Wood)
+                ] 
+            },
+            // 戊癸合火
+            (HeavenlyStem::Wu, HeavenlyStem::Gui)
+            | (HeavenlyStem::Gui, HeavenlyStem::Wu) => {
+                vec![
+                    HeavenlyStemRelationship::Harmony(WuXing::Fire)
+                ]
+            },
+            // 其他情况，返回空
+            _ => vec![]
         }
     }
 
-    fn from_relationship(&self, relationship: Self::Item) -> Self {
-        let (wuxing, yinyang) = match relationship {
-            // 正印, 生我者
-            TenGods::ZhengYin =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::BeingGenerated
-                    ),
-                self.yinyang().opposite()
-            ),
-            // 偏印, 生我者
-            TenGods::PianYin =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::BeingGenerated
-                    ),
-                self.yinyang()
-            ),
-            // 正官, 克我者
-            TenGods::ZhengGuan =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::BeingOvercome
-                    ),
-                self.yinyang().opposite()
-            ),
-            // 七杀, 克我者
-            TenGods::QiSha =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::BeingOvercome
-                    ),
-                self.yinyang()
-            ),
-            // 正财, 我克者
-            TenGods::ZhengCai =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::Overcoming
-                    ),
-                self.yinyang().opposite()
-            ),
-            // 偏财, 我克者
-            TenGods::PianCai =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::Overcoming
-                    ),
-                self.yinyang()
-            ),
-            // 食神, 我生者
-            TenGods::ShiShen =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::Generating
-                    ),
-                self.yinyang().opposite()
-            ),
-            // 伤官, 我生者
-            TenGods::ShangGuan =>  (
-                self.wuxing().from_relationship(
-                        WuXingRelation::Generating
-                    ),
-                self.yinyang()
-            ),
-            // 比肩, 同我者
-            TenGods::BiJian =>  (
-                self.wuxing(),
-                self.yinyang()
-            ),
-            // 劫财, 同我者
-            TenGods::JieCai =>  (
-                self.wuxing(),
-                self.yinyang().opposite()  
-            )
-       }; 
-       HeavenlyStem::from_yinyang_wuxing(yinyang, wuxing)
+    // 从关系反向推导出对应的目标
+    fn from_relationship(&self, relationship: Self::Item) -> Option<Self> {
+        // 如果是天干五合的话，再进行下面的判断
+        if let HeavenlyStemRelationship::Harmony(_) = relationship {
+            match self {
+                HeavenlyStem::Jia => Some(HeavenlyStem::Ji), 
+                HeavenlyStem::Ji => Some(HeavenlyStem::Jia),
+                HeavenlyStem::Yi => Some(HeavenlyStem::Geng),
+                HeavenlyStem::Geng => Some(HeavenlyStem::Yi),
+                HeavenlyStem::Bing => Some(HeavenlyStem::Xin),
+                HeavenlyStem::Xin => Some(HeavenlyStem::Bing),
+                HeavenlyStem::Ding => Some(HeavenlyStem::Ren),
+                HeavenlyStem::Ren => Some(HeavenlyStem::Ding),
+                HeavenlyStem::Wu => Some(HeavenlyStem::Gui),
+                HeavenlyStem::Gui => Some(HeavenlyStem::Wu),
+            }
+        } else {
+            None
+        }
     }
 }
 
@@ -167,6 +135,37 @@ impl HeavenlyStem {
             (YinYang::Yin, WuXing::Earth) => HeavenlyStem::Ji,
             (YinYang::Yin, WuXing::Metal) => HeavenlyStem::Xin,
             (YinYang::Yin, WuXing::Water) => HeavenlyStem::Gui
+        }
+    }
+    pub fn ten_gods(&self, other: &Self) -> TenGods {
+        let self_wuxing = self.wuxing();
+        let other_wuxing = other.wuxing();
+        let wuxing_relationship_vec = self_wuxing.relationship_with(&other_wuxing);
+        // 五行关系肯定不会有多个，也不会是空，所以这里不检查vec的长度
+        let wuxing_relationship = wuxing_relationship_vec[0];
+        let is_yinyang_same = self.yinyang() == other.yinyang();
+
+        match (wuxing_relationship, is_yinyang_same) {
+            // 正印, 生我者
+            (WuXingRelation::BeingGenerated, false) => TenGods::ZhengYin,
+            // 偏印, 生我者
+            (WuXingRelation::BeingGenerated, true) => TenGods::PianYin,
+            // 正官, 克我者
+            (WuXingRelation::BeingOvercome, false) => TenGods::ZhengGuan,
+            // 七杀, 克我者
+            (WuXingRelation::BeingOvercome, true) => TenGods::QiSha,
+            // 正财, 我克者
+            (WuXingRelation::Overcoming, false) => TenGods::ZhengCai,
+            // 偏财, 我克者
+            (WuXingRelation::Overcoming, true) => TenGods::PianCai,
+            // 比肩, 同我者
+            (WuXingRelation::Same, true) => TenGods::BiJian,
+            // 劫财, 同我者
+            (WuXingRelation::Same, false) => TenGods::JieCai,
+            // 食神, 我生者
+            (WuXingRelation::Generating, true) => TenGods::ShiShen,
+            // 伤官, 我生者
+            (WuXingRelation::Generating, false) => TenGods::ShangGuan,
         }
     }
 }
