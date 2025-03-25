@@ -5,6 +5,7 @@ mod tests;
 
 use crate::basic::{YinYang, WuXing};
 use crate::traits::{ChineseName, Index, Iter};
+use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
 
 /// 天干枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -31,9 +32,8 @@ pub enum HeavenlyStem {
     Gui,
 }
 
-impl HeavenlyStem {
-    /// 获取阴阳属性
-    pub fn yinyang(&self) -> YinYang {
+impl YinYangTrait for HeavenlyStem {
+    fn yinyang(&self) -> YinYang {
         match self {
             HeavenlyStem::Jia | HeavenlyStem::Bing | HeavenlyStem::Wu | 
             HeavenlyStem::Geng | HeavenlyStem::Ren => YinYang::Yang,
@@ -41,9 +41,10 @@ impl HeavenlyStem {
             HeavenlyStem::Xin | HeavenlyStem::Gui => YinYang::Yin,
         }
     }
+}
 
-    /// 获取五行属性
-    pub fn wuxing(&self) -> WuXing {
+impl WuXingTrait for HeavenlyStem {
+    fn wuxing(&self) -> WuXing {
         match self {
             HeavenlyStem::Jia | HeavenlyStem::Yi => WuXing::Wood,
             HeavenlyStem::Bing | HeavenlyStem::Ding => WuXing::Fire,
@@ -51,7 +52,7 @@ impl HeavenlyStem {
             HeavenlyStem::Geng | HeavenlyStem::Xin => WuXing::Metal,
             HeavenlyStem::Ren | HeavenlyStem::Gui => WuXing::Water,
         }
-    }
+    } 
 }
 
 impl ChineseName for HeavenlyStem {
