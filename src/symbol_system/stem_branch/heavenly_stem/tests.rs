@@ -2,9 +2,10 @@
 
 #[cfg(test)]
 mod tests {
-    use super::super::HeavenlyStem;
+    use super::super::{HeavenlyStem, relationship::HeavenlyStemRelationship};
     use crate::basic::{YinYang, WuXing};
     use crate::traits::{ChineseName, Index, Iter, Relationship};
+    use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
     use super::super::relationship::TenGods;
 
     #[test]
@@ -83,34 +84,34 @@ mod tests {
     #[test]
     fn test_ten_gods_relationship() {
         // 测试比肩关系（同我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Jia), TenGods::BiJian);
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Jia), TenGods::BiJian);
         
         // 测试劫财关系（同我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Yi), TenGods::JieCai);
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Yi), TenGods::JieCai);
+
+        // 测试食神关系（我克者）
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Bing), TenGods::ShiShen);
+
+        // 测试伤官关系（我克者）
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Ding), TenGods::ShangGuan);
+
+        // 测试正财关系（我克者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Ji), TenGods::ZhengCai);
+
+        // 测试偏财关系（我克者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Wu), TenGods::PianCai);
         
-        // 测试食神关系（我生者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Ding), TenGods::ShiShen);
-        
-        // 测试伤官关系（我生者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Bing), TenGods::ShangGuan);
-        
-        // 测试正财关系（我克者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Ji), TenGods::ZhengCai);
-        
-        // 测试偏财关系（我克者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Wu), TenGods::PianCai);
-        
-        // 测试正官关系（克我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Xin), TenGods::ZhengGuan);
-        
-        // 测试七杀关系（克我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Geng), TenGods::QiSha);
-        
-        // 测试正印关系（生我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Gui), TenGods::ZhengYin);
-        
-        // 测试偏印关系（生我者）
-        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Ren), TenGods::PianYin);
+        // 测试正官关系（克我者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Xin), TenGods::ZhengGuan);
+
+        // 测试七杀关系（克我者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Geng), TenGods::QiSha);
+
+        // 测试正印关系（生我者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Gui), TenGods::ZhengYin);
+
+        // 测试偏印关系（生我者）.ten_gods(
+        assert_eq!(HeavenlyStem::Jia.ten_gods(&HeavenlyStem::Ren), TenGods::PianYin);
     }
 
     #[test]
@@ -145,5 +146,29 @@ mod tests {
         assert_eq!(HeavenlyStem::from_yinyang_wuxing(YinYang::Yin, WuXing::Metal), HeavenlyStem::Xin);
         assert_eq!(HeavenlyStem::from_yinyang_wuxing(YinYang::Yang, WuXing::Water), HeavenlyStem::Ren);
         assert_eq!(HeavenlyStem::from_yinyang_wuxing(YinYang::Yin, WuXing::Water), HeavenlyStem::Gui);
+    }
+
+    #[test]
+    fn test_relationship_with() {
+        // 测试五合关系
+        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Ji)[0], HeavenlyStemRelationship::Harmony(WuXing::Earth));
+        assert_eq!(HeavenlyStem::Yi.relationship_with(&HeavenlyStem::Geng)[0], HeavenlyStemRelationship::Harmony(WuXing::Metal));
+        assert_eq!(HeavenlyStem::Bing.relationship_with(&HeavenlyStem::Xin)[0], HeavenlyStemRelationship::Harmony(WuXing::Water));
+        assert_eq!(HeavenlyStem::Ding.relationship_with(&HeavenlyStem::Ren)[0], HeavenlyStemRelationship::Harmony(WuXing::Wood));
+        assert_eq!(HeavenlyStem::Wu.relationship_with(&HeavenlyStem::Gui)[0], HeavenlyStemRelationship::Harmony(WuXing::Fire));
+
+        // 测试非五合关系
+        assert_eq!(HeavenlyStem::Jia.relationship_with(&HeavenlyStem::Yi).len(), 0);
+        assert_eq!(HeavenlyStem::Bing.relationship_with(&HeavenlyStem::Wu).len(), 0);
+    }
+
+    #[test]
+    fn test_from_relationship() {
+        // 测试从五合关系反推天干
+        assert_eq!(HeavenlyStem::Jia.from_relationship(HeavenlyStemRelationship::Harmony(WuXing::Earth)), Some(HeavenlyStem::Ji));
+        assert_eq!(HeavenlyStem::Yi.from_relationship(HeavenlyStemRelationship::Harmony(WuXing::Metal)), Some(HeavenlyStem::Geng));
+        assert_eq!(HeavenlyStem::Bing.from_relationship(HeavenlyStemRelationship::Harmony(WuXing::Water)), Some(HeavenlyStem::Xin));
+        assert_eq!(HeavenlyStem::Ding.from_relationship(HeavenlyStemRelationship::Harmony(WuXing::Wood)), Some(HeavenlyStem::Ren));
+        assert_eq!(HeavenlyStem::Wu.from_relationship(HeavenlyStemRelationship::Harmony(WuXing::Fire)), Some(HeavenlyStem::Gui));
     }
 }
