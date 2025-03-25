@@ -1,6 +1,6 @@
 //! 天干相关类型的模块
 
-mod relationship;
+pub mod relationship;
 mod tests;
 
 use crate::basic::{YinYang, WuXing};
