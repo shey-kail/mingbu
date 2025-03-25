@@ -1,6 +1,6 @@
 //! 特征模块，定义命理学中常用的特征
 pub mod yinyang_wuxing;
-use yinyang_wuxing::*;
+
 /// 中文名称特征，用于获取事物的中文名称
 pub trait ChineseName {
     /// 获取中文名称
