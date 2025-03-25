@@ -1,6 +1,6 @@
 //! 地支关系常量数组模块
 
-use super::EarthlyBranch;
+use super::{EarthlyBranch, super::HeavenlyStem};
 use crate::basic::wuxing::WuXing;
 
 // 相刑关系常量数组
@@ -138,4 +138,32 @@ pub const BREAK_PAIRS: [(EarthlyBranch, EarthlyBranch); 6] = [
     (EarthlyBranch::Wu, EarthlyBranch::Chou),
     (EarthlyBranch::Shen, EarthlyBranch::Mao),
     (EarthlyBranch::You, EarthlyBranch::Zi),
+];
+
+// 地支藏干关系常量数组
+pub const HIDDEN_STEM_PAIRS: [(EarthlyBranch, (HeavenlyStem, Option<HeavenlyStem>, Option<HeavenlyStem>)); 12] = [
+    // 子水藏癸
+    (EarthlyBranch::Zi, (HeavenlyStem::Gui, None, None)),
+    // 丑土藏己辛癸
+    (EarthlyBranch::Chou, (HeavenlyStem::Ji, Some(HeavenlyStem::Xin), Some(HeavenlyStem::Gui))),
+    // 寅木藏甲丙戊
+    (EarthlyBranch::Yin, (HeavenlyStem::Jia, Some(HeavenlyStem::Bing), Some(HeavenlyStem::Wu))),
+    // 卯木藏乙
+    (EarthlyBranch::Mao, (HeavenlyStem::Yi, None, None)),
+    // 辰土藏戊乙癸
+    (EarthlyBranch::Chen, (HeavenlyStem::Wu, Some(HeavenlyStem::Yi), Some(HeavenlyStem::Gui))),
+    // 巳火藏丙戊庚
+    (EarthlyBranch::Si, (HeavenlyStem::Bing, Some(HeavenlyStem::Wu), Some(HeavenlyStem::Geng))),
+    // 午火藏丁己
+    (EarthlyBranch::Wu, (HeavenlyStem::Ding, Some(HeavenlyStem::Ji), None)),
+    // 未土藏己丁乙
+    (EarthlyBranch::Wei, (HeavenlyStem::Ji, Some(HeavenlyStem::Ding), Some(HeavenlyStem::Yi))),
+    // 申金藏庚壬戊
+    (EarthlyBranch::Shen, (HeavenlyStem::Geng, Some(HeavenlyStem::Ren), Some(HeavenlyStem::Wu))),
+    // 酉金藏辛
+    (EarthlyBranch::You, (HeavenlyStem::Xin, None, None)),
+    // 戌土藏戊辛丁
+    (EarthlyBranch::Xu, (HeavenlyStem::Wu, Some(HeavenlyStem::Xin), Some(HeavenlyStem::Ding))),
+    // 亥水藏壬甲
+    (EarthlyBranch::Hai, (HeavenlyStem::Ren, Some(HeavenlyStem::Jia), None)),
 ];

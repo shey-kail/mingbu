@@ -1,7 +1,9 @@
 //! 地支相关类型的模块
 
 pub mod relationship;
+pub mod hidden_stem;
 mod data;
+mod tests;
 
 use crate::basic::{YinYang, WuXing};
 use crate::traits::{Index, ChineseName, Iter};
