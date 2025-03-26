@@ -1,49 +1,130 @@
 //! 十二长生相关类型的模块
+use crate::traits::{Iter, ChineseName};
+use crate::symbol_system::{HeavenlyStem, EarthlyBranch};
 
-/// 十二长生枚举
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TwelveStages {
-    /// 长生
-    Birth,
-    /// 沐浴
-    Bath,
-    /// 冠带
-    Crown,
-    /// 临官
-    Office,
-    /// 帝旺
-    Peak,
-    /// 衰
-    Decline,
-    /// 病
-    Sick,
-    /// 死
-    Death,
-    /// 墓
-    Tomb,
-    /// 绝
-    End,
-    /// 胎
-    Fetus,
-    /// 养
-    Raise,
+/// 十二长生数组
+const TWELVE_STAGES: [&str; 12] = [
+    "长生",
+    "沐浴",
+    "冠带",
+    "临官",
+    "帝旺",
+    "衰",
+    "病",
+    "死",
+    "墓",
+    "绝",
+    "胎",
+    "养",
+];
+
+// 十二长生结构体
+pub struct TwelveStages {
+    /// 十二长生数组的索引
+    index: usize,
 }
 
-impl std::fmt::Display for TwelveStages {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TwelveStages::Birth => write!(f, "长生"),
-            TwelveStages::Bath => write!(f, "沐浴"),
-            TwelveStages::Crown => write!(f, "冠带"),
-            TwelveStages::Office => write!(f, "临官"),
-            TwelveStages::Peak => write!(f, "帝旺"),
-            TwelveStages::Decline => write!(f, "衰"),
-            TwelveStages::Sick => write!(f, "病"),
-            TwelveStages::Death => write!(f, "死"),
-            TwelveStages::Tomb => write!(f, "墓"),
-            TwelveStages::End => write!(f, "绝"),
-            TwelveStages::Fetus => write!(f, "胎"),
-            TwelveStages::Raise => write!(f, "养"),
+impl TwelveStages  {
+    // 获得帝旺天干和地支
+    fn get_diwang_branch(stem: HeavenlyStem) -> EarthlyBranch {
+       match stem {
+           HeavenlyStem::Jia => EarthlyBranch::Mao,
+           HeavenlyStem::Yi => EarthlyBranch::Yin,
+           HeavenlyStem::Bing => EarthlyBranch::Wu,
+           HeavenlyStem::Ding => EarthlyBranch::Si,
+           HeavenlyStem::Wu => EarthlyBranch::Wu,
+           HeavenlyStem::Ji => EarthlyBranch::Si,
+           HeavenlyStem::Geng => EarthlyBranch::You,
+           HeavenlyStem::Xin => EarthlyBranch::Shen,
+           HeavenlyStem::Ren => EarthlyBranch::Zi,
+           HeavenlyStem::Gui => EarthlyBranch::Hai,
+       } 
+    }
+    fn get_diwang_stem(branch: EarthlyBranch) -> Option<Vec<HeavenlyStem>> {
+        match branch {
+            EarthlyBranch::Mao =>  Some(vec![HeavenlyStem::Jia]),
+            EarthlyBranch::Yin =>  Some(vec![HeavenlyStem::Yi]),
+            EarthlyBranch::Wu =>   Some(vec![HeavenlyStem::Bing, HeavenlyStem::Wu]),
+            EarthlyBranch::Si =>   Some(vec![HeavenlyStem::Ding, HeavenlyStem::Ji]),
+            EarthlyBranch::You =>  Some(vec![HeavenlyStem::Geng]),
+            EarthlyBranch::Shen => Some(vec![HeavenlyStem::Xin]),
+            EarthlyBranch::Zi =>   Some(vec![HeavenlyStem::Ren]),
+            EarthlyBranch::Hai =>  Some(vec![HeavenlyStem::Gui]),
+            _ => None,
         }
     }
+    // 获得天干在地支关系的十二长生
+    pub fn get_twelve_stages(stem: HeavenlyStem, branch: EarthlyBranch) -> Self {
+        let diwang_branch = Self::get_diwang_branch(stem);
+        let mut index = 0;
+        let mut current_branch = diwang_branch;
+        while current_branch != branch {
+            current_branch = current_branch.next();
+            index += 1;
+            if index >= 12 {
+                break;
+            }
+        }
+        Self { index }
+    }
+    // 根据天干和十二长生获得地支
+    pub fn get_earthly_branch(&self, stem: HeavenlyStem) -> EarthlyBranch {
+        let diwang_branch = Self::get_diwang_branch(stem);
+        let mut current_branch = diwang_branch;
+        for _ in 0..self.index {
+            current_branch = current_branch.next();
+        }
+        current_branch
+    }
+    // 根据地支和十二长生获得天干
+    pub fn get_heavenly_stem(&self, branch: EarthlyBranch) -> HeavenlyStem {
+        let stems = Self::get_diwang_stem(branch).unwrap_or_default();
+        if stems.is_empty() {
+            return HeavenlyStem::Jia;
+        }
+        stems[0]
+    }
+    pub fn from_chinese_name(chinese_name: &str) -> Self {
+        let index = TWELVE_STAGES.iter()
+            .position(|&name| name == chinese_name)
+            .unwrap_or(0);
+        Self { index }
+    }
+}
+
+
+impl ChineseName for TwelveStages {
+    fn chinese_name(&self) -> &'static str {
+        TWELVE_STAGES[self.index]
+    }
+}
+
+impl Iter for TwelveStages {
+    type Item = Self;
+
+    fn next(&self) -> Self::Item {
+        // 如果是最后一个，则返回第一个
+        if self.index == TWELVE_STAGES.len() - 1 {
+            Self { index: 0 }
+        } else {
+            // 否则返回下一个
+            Self {
+                index: self.index + 1,
+            }
+        }
+    }
+    fn prev(&self) -> Self::Item {
+        // 如果是第一个，则返回最后一个
+        if self.index == 0 {
+            Self {
+                index: TWELVE_STAGES.len() - 1,
+            }  
+        } else {
+            // 否则返回上一个
+            Self {
+                index: self.index - 1,
+            }
+        }
+    }
+
 }
