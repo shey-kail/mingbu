@@ -1,4 +1,5 @@
 //! 天干地支相关类型的模块
+mod tests;
 
 pub mod sexagesimal_cycle;
 pub mod heavenly_stem;
