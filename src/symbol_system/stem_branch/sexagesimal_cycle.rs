@@ -2,7 +2,7 @@
 
 use super::{HeavenlyStem, EarthlyBranch};
 use crate::WuXing;
-use crate::traits::{Iter, Index, yinyang_wuxing::YinYangTrait};
+use crate::traits::{ChineseName, Iter, Index, yinyang_wuxing::YinYangTrait};
 
 /// 六十甲子结构体
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -35,6 +35,14 @@ const SOUNDS: [(&str, WuXing); 30] = [
     ("天河水", WuXing::Water), ("大驿土", WuXing::Earth), ("钗钏金", WuXing::Metal),
     ("桑柘木", WuXing::Wood), ("大溪水", WuXing::Water), ("沙中土", WuXing::Earth),
     ("天上火", WuXing::Fire), ("石榴木", WuXing::Wood), ("大海水", WuXing::Water),
+];
+const SEXAGESIMAL_CYCLE: [&str; 60] = [
+    "甲子", "乙丑", "丙寅", "丁卯", "戊辰", "己巳", "庚午", "辛未", "壬申", "癸酉",
+    "甲戌", "乙亥", "丙子", "丁丑", "戊寅", "己卯", "庚辰", "辛巳", "壬午", "癸未",
+    "甲申", "乙酉", "丙戌", "丁亥", "戊子", "己丑", "庚寅", "辛卯", "壬辰", "癸巳",
+    "甲午", "乙未", "丙申", "丁酉", "戊戌", "己亥", "庚子", "辛丑", "壬寅", "癸卯",
+    "甲辰", "乙巳", "丙午", "丁未", "戊申", "己酉", "庚戌", "辛亥", "壬子", "癸丑",
+    "甲寅", "乙卯", "丙辰", "丁巳", "戊午", "己未", "庚申", "辛酉", "壬戌", "癸亥",
 ];
 
 impl Index for SexagesimalCycle {
@@ -76,6 +84,14 @@ impl Iter for SexagesimalCycle {
     }
 }
 
+impl ChineseName for SexagesimalCycle {
+    fn chinese_name(&self) -> &'static str {
+        // 因为SEXAGESIMAL_CYCLE数组早就规定好而且是常量，所以没有必要进行长度检查
+        // 因为index是从1开始的，所以需要减1
+        SEXAGESIMAL_CYCLE[self.index() - 1]
+    }
+}
+
 impl SexagesimalCycle {
     /// 创建一个新的六十甲子实例
     pub fn new(stem: HeavenlyStem, branch: EarthlyBranch) -> Result<Self, &'static str> {
@@ -86,13 +102,13 @@ impl SexagesimalCycle {
     }
 
     /// 获取天干
-    pub fn stem(&self) -> HeavenlyStem {
-        self.stem
+    pub fn stem(&self) -> &HeavenlyStem {
+        &(self.stem)
     }
 
     /// 获取地支
-    pub fn branch(&self) -> EarthlyBranch {
-        self.branch
+    pub fn branch(&self) -> &EarthlyBranch {
+        &(self.branch)
     }
 
     /// 获取纳音名称

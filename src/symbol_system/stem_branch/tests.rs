@@ -5,11 +5,12 @@ mod tests {
     use super::super::*;
     use crate::traits::{ChineseName, Iter};
     use crate::symbol_system::stem_branch::sexagesimal_cycle::*;
+    use crate::symbol_system::stem_branch::twelve_stages::*;
 
     #[test]
     fn test_sexagesimal_cycle() {
         // 测试六十甲子的初始化
-        let cycle = SexagesimalCycle::new(HeavenlyStem::Jia, EarthlyBranch::Zi);
+        let cycle = SexagesimalCycle::new(HeavenlyStem::Jia, EarthlyBranch::Zi).unwrap();
         assert_eq!(cycle.chinese_name(), "甲子");
 
         // 测试六十甲子的迭代
