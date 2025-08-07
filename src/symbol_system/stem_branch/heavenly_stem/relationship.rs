@@ -3,7 +3,7 @@
 use super::HeavenlyStem;
 use crate::traits::Relationship;
 use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
-use crate::basic::{YinYang, WuXing, WuXingRelation};
+use crate::symbol_system::{YinYang, WuXing, WuXingRelation};
 
 // 天干关系枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -82,7 +82,6 @@ impl Relationship for HeavenlyStem {
         }
     }
 
-    // 从关系反向推导出对应的目标
     fn from_relationship(&self, relationship: Self::Item) -> Option<Self> {
         // 如果是天干五合的话，再进行下面的判断
         if let HeavenlyStemRelationship::Harmony(_) = relationship {

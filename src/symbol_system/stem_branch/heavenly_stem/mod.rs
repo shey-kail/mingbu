@@ -3,7 +3,7 @@
 pub mod relationship;
 mod tests;
 
-use crate::basic::{YinYang, WuXing};
+use crate::symbol_system::{YinYang, WuXing};
 use crate::traits::{ChineseName, Index, Iter};
 use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
 

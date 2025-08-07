@@ -2,7 +2,7 @@
 
 use super::EarthlyBranch;
 use crate::traits::{Index, Relationship, TripleRelationship};
-use crate::basic::wuxing::WuXing;
+use crate::symbol_system::wuxing::WuXing;
 use super::data::*;
 
 

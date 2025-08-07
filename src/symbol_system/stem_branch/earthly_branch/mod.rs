@@ -5,7 +5,7 @@ pub mod hidden_stem;
 mod data;
 mod tests;
 
-use crate::basic::{YinYang, WuXing};
+use crate::symbol_system::{YinYang, WuXing};
 use crate::traits::{Index, ChineseName, Iter};
 use crate::traits::yinyang_wuxing::{WuXingTrait, YinYangTrait};
 /// 地支枚举

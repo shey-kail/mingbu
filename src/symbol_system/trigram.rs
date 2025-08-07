@@ -1,6 +1,6 @@
 //! 八卦模块，定义八卦相关的基本类型和特征
 
-use crate::basic::YinYang;
+use crate::symbol_system::YinYang;
 
 /// 八卦枚举，表示八种基本卦象
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

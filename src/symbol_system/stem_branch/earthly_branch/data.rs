@@ -1,7 +1,7 @@
 //! 地支关系常量数组模块
 
 use super::{EarthlyBranch, super::HeavenlyStem};
-use crate::basic::wuxing::WuXing;
+use crate::symbol_system::wuxing::WuXing;
 
 // 相刑关系常量数组
 pub const PUNISHING_PAIRS: [(EarthlyBranch, EarthlyBranch); 12] = [
