@@ -1,6 +1,6 @@
 //! 基础特性模块，定义阴阳和五行相关的特性
 
-use crate::basic::{YinYang, WuXing};
+use crate::symbol_system::{YinYang, WuXing};
 
 /// 阴阳特性，定义获取和转换阴阳属性的方法
 pub trait YinYangTrait {
