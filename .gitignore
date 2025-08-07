@@ -1,1 +1,8 @@
 /target
+
+# Ignore all markdown files
+**/*.md
+
+# But do not ignore README.md and README_zh.md
+!README.md
+!README_zh.md
