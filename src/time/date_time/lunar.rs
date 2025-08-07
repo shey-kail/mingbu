@@ -22,8 +22,8 @@ impl Lunar  {
     // 月份列表
     pub fn get_month_list(&self) -> Vec<String> {
         let mut month_list = Vec::new();
-        for i in 1..=12 {
-            month_list.push(self.time.get_month_name(i));
+        for _ in 1..=12 {
+            month_list.push(self.time.get_month().to_string());
         }
         month_list
     }

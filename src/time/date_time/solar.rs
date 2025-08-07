@@ -3,7 +3,7 @@ use tyme4rs::tyme::{solar::SolarTime, Culture};
 use super::consts::SOLAR_TERMS;
 use super::super::date_time::Lunar;
 use std::ops::Sub;
-use num_bigint::BigInt;
+use num_bigint::{BigInt, ToBigInt};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Solar {
@@ -62,12 +62,12 @@ impl Solar {
 impl Sub for Solar {
     type Output = BigInt;
     // 计算两个时间的时间差，返回秒数
-    fn sub(&self, target: Self) -> Self::Output {
-        let mut days: BigInt = self.day.subtract(target.get_solar_day());
-        let cs: BigInt = self.hour * 3600 + self.minute * 60 + self.second;
-        let ts: BigInt = target.get_hour() * 3600 + target.get_minute() * 60 + target.get_second();
+    fn sub(self, target: Self) -> Self::Output {
+        let mut days: BigInt = self.time.get_solar_day().subtract(target.time.get_solar_day()).into();
+        let cs: BigInt = (self.time.get_hour() * 3600 + self.time.get_minute() * 60 + self.time.get_second()).into();
+        let ts: BigInt = (target.time.get_hour() * 3600 + target.time.get_minute() * 60 + target.time.get_second()).into();
         let mut seconds: BigInt = cs - ts;
-        if seconds < 0 {
+        if seconds < 0.to_bigint().unwrap() {
           seconds += 86400;
           days -= 1;
         }
