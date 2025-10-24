@@ -1,46 +1,24 @@
 # Mingbu
 
-> ⚠️ This project is under rapid development and the API may change frequently.
+> ⚠️ 本项目正处于快速开发阶段，API可能会频繁变动。
 
-Mingbu (命卜) is a Rust library for Chinese metaphysics calculations and divination. The name comes from two of the Five Arts (五术) in Chinese culture: Ming (命, destiny calculation) and Bu (卜, divination).
+Mingbu (命卜) 是一个用于中国玄学计算和占卜的Rust库。这个名字来源于中国传统五术中的两个分支：命（命理推算）和卜（占卜）。
 
-## Features
+## 功能特性
 
-- Basic concepts in Chinese metaphysics
-  - Yin-Yang (阴阳)
-  - Five Elements (五行)
-  - Eight Trigrams (八卦)
-  - Heavenly Stems and Earthly Branches (天干地支)
-- Relationship calculations between elements
-- Extensible trait system for custom implementations
+- 中国玄学基本概念
+  - 阴阳
+  - 五行
+  - 八卦
+  - 天干地支
+- 元素之间的关系计算
+- 可扩展的特征系统，支持自定义实现
 
-## Installation
+## 安装
 
-Add this to your `Cargo.toml`:
+在`Cargo.toml`中添加以下依赖：
 
 ```toml
 [dependencies]
 mingbu = "0.1.0"
 ```
-
-## Usage
-
-```rust
-use mingbu::{WuXing, YinYang, EarthlyBranch, HeavenlyStem, Trigram};
-
-// Create and use Five Elements
-let wood = WuXing::Wood;
-let fire = WuXing::Fire;
-
-// Create and use Trigrams
-let qian = Trigram::Qian;
-let kun = Trigram::Kun;
-
-// Work with Heavenly Stems and Earthly Branches
-let jia = HeavenlyStem::Jia;
-let zi = EarthlyBranch::Zi;
-```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
