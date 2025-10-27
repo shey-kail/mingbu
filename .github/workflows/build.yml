@@ -79,7 +79,7 @@ jobs:
       
     - name: Upload build artifacts (Linux)
       if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mingbu-linux-${{ matrix.toolchain }}
         path: |
@@ -88,7 +88,7 @@ jobs:
           
     - name: Upload build artifacts (Windows)
       if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mingbu-windows-${{ matrix.toolchain }}
         path: |
@@ -98,7 +98,7 @@ jobs:
           
     - name: Upload build artifacts (macOS)
       if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mingbu-macos-${{ matrix.toolchain }}
         path: |

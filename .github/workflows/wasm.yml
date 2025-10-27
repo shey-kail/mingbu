@@ -37,7 +37,7 @@ jobs:
       run: wasm-pack test --headless --chrome
       
     - name: Upload WebAssembly artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mingbu-wasm
         path: |
