@@ -39,7 +39,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential pkg-config libssl-dev
+        sudo apt-get install -y build-essential pkg-config libssl-dev libclang-dev
         
     - name: Install Windows dependencies
       if: matrix.os == 'windows-latest'
@@ -57,18 +57,19 @@ jobs:
       run: cargo build --release
       
     - name: Build for Linux (x86_64)
-      if: matrix.os != 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest'
       run: cargo build --target x86_64-unknown-linux-gnu --release
       
     - name: Build for Windows (x86_64)
-      if: matrix.os != 'windows-latest'
+      if: matrix.os == 'windows-latest'
       run: cargo build --target x86_64-pc-windows-msvc --release
       
     - name: Build for macOS (x86_64)
-      if: matrix.os != 'macos-latest'
+      if: matrix.os == 'macos-latest'
       run: cargo build --target x86_64-apple-darwin --release
       
     - name: Build for macOS (aarch64)
+      if: matrix.os == 'macos-latest'
       run: cargo build --target aarch64-apple-darwin --release
       
     - name: Build for WebAssembly
@@ -83,8 +84,7 @@ jobs:
       with:
         name: mingbu-linux-${{ matrix.toolchain }}
         path: |
-          target/release/libmingbu.a
-          target/wasm32-unknown-unknown/release/mingbu.wasm
+          target/x86_64-unknown-linux-gnu/release/libmingbu.a
           
     - name: Upload build artifacts (Windows)
       if: matrix.os == 'windows-latest'
@@ -92,9 +92,8 @@ jobs:
       with:
         name: mingbu-windows-${{ matrix.toolchain }}
         path: |
-          target/release/mingbu.lib
-          target/release/mingbu.dll
-          target/wasm32-unknown-unknown/release/mingbu.wasm
+          target/x86_64-pc-windows-msvc/release/mingbu.lib
+          target/x86_64-pc-windows-msvc/release/mingbu.dll
           
     - name: Upload build artifacts (macOS)
       if: matrix.os == 'macos-latest'
@@ -102,5 +101,12 @@ jobs:
       with:
         name: mingbu-macos-${{ matrix.toolchain }}
         path: |
-          target/release/libmingbu.a
+          target/x86_64-apple-darwin/release/libmingbu.a
+          target/aarch64-apple-darwin/release/libmingbu.a
+          
+    - name: Upload WebAssembly artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-wasm
+        path: |
           target/wasm32-unknown-unknown/release/mingbu.wasm
