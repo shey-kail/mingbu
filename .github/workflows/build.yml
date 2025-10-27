@@ -19,6 +19,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         toolchain: [stable]
         
+  build-wasm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable]
+        
     steps:
     - uses: actions/checkout@v4
     
@@ -29,11 +35,12 @@ jobs:
         
     - name: Install build targets
       run: |
-        rustup target add x86_64-unknown-linux-gnu
-        rustup target add x86_64-pc-windows-msvc
-        rustup target add x86_64-apple-darwin
-        rustup target add aarch64-apple-darwin
         rustup target add wasm32-unknown-unknown
+        # Add macOS cross-compilation targets
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          rustup target add x86_64-apple-darwin
+          rustup target add aarch64-apple-darwin
+        fi
         
     - name: Install Linux dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -50,63 +57,118 @@ jobs:
     - name: Install macOS dependencies
       if: matrix.os == 'macos-latest'
       run: |
-        # macOS usually doesn't need additional system dependencies for Rust/C compilation
+        # Install lipo for creating universal binaries
         echo "macOS dependencies configured"
         
     - name: Build for host platform
+      if: matrix.os != 'macos-latest'
       run: cargo build --release
       
-    - name: Build for Linux (x86_64)
-      if: matrix.os == 'ubuntu-latest'
-      run: cargo build --target x86_64-unknown-linux-gnu --release
-      
-    - name: Build for Windows (x86_64)
-      if: matrix.os == 'windows-latest'
-      run: cargo build --target x86_64-pc-windows-msvc --release
-      
-    - name: Build for macOS (x86_64)
+    - name: Build for macOS x86_64 (macOS only)
       if: matrix.os == 'macos-latest'
-      run: cargo build --target x86_64-apple-darwin --release
-      
-    - name: Build for macOS (aarch64)
+      run: |
+        cargo build --target x86_64-apple-darwin --release
+        
+    - name: Build for macOS aarch64 (macOS only)
       if: matrix.os == 'macos-latest'
-      run: cargo build --target aarch64-apple-darwin --release
-      
-    - name: Build for WebAssembly
-      run: cargo build --target wasm32-unknown-unknown --release
+      run: |
+        cargo build --target aarch64-apple-darwin --release
       
     - name: Run tests
+      if: matrix.os != 'macos-latest'
+      run: cargo test --release
+      
+    - name: Run tests (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: cargo test --release
       
     - name: Upload build artifacts (Linux)
       if: matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: mingbu-linux-${{ matrix.toolchain }}
+        name: mingbu-linux-x86_64-${{ matrix.toolchain }}
         path: |
-          target/x86_64-unknown-linux-gnu/release/libmingbu.a
+          target/release/libmingbu.a
           
     - name: Upload build artifacts (Windows)
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: mingbu-windows-${{ matrix.toolchain }}
+        name: mingbu-windows-x86_64-${{ matrix.toolchain }}
         path: |
-          target/x86_64-pc-windows-msvc/release/mingbu.lib
-          target/x86_64-pc-windows-msvc/release/mingbu.dll
+          target/release/mingbu.lib
+          target/release/mingbu.dll
           
-    - name: Upload build artifacts (macOS)
-      if: matrix.os == 'macos-latest'
+    - name: Upload build artifacts (Linux host test)
+      if: matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: mingbu-macos-${{ matrix.toolchain }}
+        name: mingbu-linux-x86_64-tests-${{ matrix.toolchain }}
         path: |
-          target/x86_64-apple-darwin/release/libmingbu.a
-          target/aarch64-apple-darwin/release/libmingbu.a
-          
+          target/release/deps/libmingbu*
+
+  build-wasm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust toolchain
+      run: |
+        rustup update ${{ matrix.toolchain }}
+        rustup default ${{ matrix.toolchain }}
+        rustup target add wasm32-unknown-unknown
+        
+    - name: Install Linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential pkg-config libssl-dev libclang-dev
+        
+    - name: Build for WebAssembly
+      run: cargo build --target wasm32-unknown-unknown --release
+      
+    - name: Run tests for WebAssembly
+      run: cargo test --target wasm32-unknown-unknown --release
+      
     - name: Upload WebAssembly artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mingbu-wasm
+        name: mingbu-wasm-${{ matrix.toolchain }}
         path: |
           target/wasm32-unknown-unknown/release/mingbu.wasm
+          
+    - name: Create macOS universal binary
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Create a universal binary from x86_64 and aarch64 builds
+        lipo -create \
+          target/x86_64-apple-darwin/release/libmingbu.a \
+          target/aarch64-apple-darwin/release/libmingbu.a \
+          -output target/release/libmingbu_universal.a
+          
+    - name: Upload build artifacts (macOS x86_64)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-x86_64-${{ matrix.toolchain }}
+        path: |
+          target/x86_64-apple-darwin/release/libmingbu.a
+          
+    - name: Upload build artifacts (macOS aarch64)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-aarch64-${{ matrix.toolchain }}
+        path: |
+          target/aarch64-apple-darwin/release/libmingbu.a
+          
+    - name: Upload build artifacts (macOS universal)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-universal-${{ matrix.toolchain }}
+        path: |
+          target/release/libmingbu_universal.a
