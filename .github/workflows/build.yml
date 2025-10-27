@@ -19,12 +19,6 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         toolchain: [stable]
         
-  build-wasm:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toolchain: [stable]
-        
     steps:
     - uses: actions/checkout@v4
     
@@ -35,8 +29,7 @@ jobs:
         
     - name: Install build targets
       run: |
-        rustup target add wasm32-unknown-unknown
-        # Add macOS cross-compilation targets
+        # Add macOS cross-compilation targets only on macOS
         if [ "$RUNNER_OS" = "macOS" ]; then
           rustup target add x86_64-apple-darwin
           rustup target add aarch64-apple-darwin
@@ -82,6 +75,15 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: cargo test --release
       
+    - name: Create macOS universal binary
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Create a universal binary from x86_64 and aarch64 builds
+        lipo -create \
+          target/x86_64-apple-darwin/release/libmingbu.a \
+          target/aarch64-apple-darwin/release/libmingbu.a \
+          -output target/release/libmingbu_universal.a
+          
     - name: Upload build artifacts (Linux)
       if: matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
@@ -106,6 +108,30 @@ jobs:
         name: mingbu-linux-x86_64-tests-${{ matrix.toolchain }}
         path: |
           target/release/deps/libmingbu*
+          
+    - name: Upload build artifacts (macOS x86_64)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-x86_64-${{ matrix.toolchain }}
+        path: |
+          target/x86_64-apple-darwin/release/libmingbu.a
+          
+    - name: Upload build artifacts (macOS aarch64)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-aarch64-${{ matrix.toolchain }}
+        path: |
+          target/aarch64-apple-darwin/release/libmingbu.a
+          
+    - name: Upload build artifacts (macOS universal)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: mingbu-macos-universal-${{ matrix.toolchain }}
+        path: |
+          target/release/libmingbu_universal.a
 
   build-wasm:
     runs-on: ubuntu-latest
@@ -139,36 +165,3 @@ jobs:
         name: mingbu-wasm-${{ matrix.toolchain }}
         path: |
           target/wasm32-unknown-unknown/release/mingbu.wasm
-          
-    - name: Create macOS universal binary
-      if: matrix.os == 'macos-latest'
-      run: |
-        # Create a universal binary from x86_64 and aarch64 builds
-        lipo -create \
-          target/x86_64-apple-darwin/release/libmingbu.a \
-          target/aarch64-apple-darwin/release/libmingbu.a \
-          -output target/release/libmingbu_universal.a
-          
-    - name: Upload build artifacts (macOS x86_64)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: mingbu-macos-x86_64-${{ matrix.toolchain }}
-        path: |
-          target/x86_64-apple-darwin/release/libmingbu.a
-          
-    - name: Upload build artifacts (macOS aarch64)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: mingbu-macos-aarch64-${{ matrix.toolchain }}
-        path: |
-          target/aarch64-apple-darwin/release/libmingbu.a
-          
-    - name: Upload build artifacts (macOS universal)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: mingbu-macos-universal-${{ matrix.toolchain }}
-        path: |
-          target/release/libmingbu_universal.a
