@@ -1,41 +1,7 @@
 use serde::Serialize;
 use crate::concepts::yinyang::YinYang;
 use crate::concepts::wu_xing::WuXing;
-
-/// 用于获取事物的中文名称
-pub trait ChineseName {
-    /// 获取中文名称
-    fn chinese_name(&self) -> &'static str;
-}
-
-/// 用于获取事物在序列中的索引，索引从1开始
-pub trait Index {
-    /// 从索引创建实例
-    fn from_index(index: usize) -> Self;
-    /// 获取索引值
-    fn index(&self) -> usize;
-}
-
-/// 用于在相关事物间迭代
-pub trait Iter {
-    type Item;
-    /// 获取下一个元素
-    fn next(&self) -> Self::Item;
-    /// 获取上一个元素
-    fn prev(&self) -> Self::Item;
-}
-
-/// 阴阳特征，定义获取和转换阴阳属性的方法
-pub trait YinYangTrait {
-    /// 获取阴阳属性
-    fn yinyang(&self) -> YinYang;
-}
-
-/// 五行特征，定义获取和转换五行属性的方法
-pub trait WuXingTrait {
-    /// 获取五行属性
-    fn wuxing(&self) -> WuXing;
-}
+use crate::concepts::traits::{YinYangTrait, WuXingTrait, ChineseName, Index, Iter};
 
 /// 天干枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]

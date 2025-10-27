@@ -29,3 +29,27 @@ pub trait TripleRelationship {
     fn relationship_with_triple(&self, second: &Self, third: &Self) -> Option<Self::Item>;
     fn from_relationship_triple(&self, relationship: Self::Item) -> (Option<Self>, Option<Self>) where Self: Sized;
 }
+
+/// 用于获取事物的中文名称
+pub trait ChineseName {
+    /// 获取中文名称
+    fn chinese_name(&self) -> &'static str;
+}
+
+/// 用于获取事物在序列中的索引，索引从1开始
+pub trait Index {
+    /// 从索引创建实例
+    fn from_index(index: usize) -> Self;
+    /// 获取索引值
+    fn index(&self) -> usize;
+}
+
+/// 用于在相关事物间迭代
+pub trait Iter {
+    type Item;
+    /// 获取下一个元素
+    fn next(&self) -> Self::Item;
+    /// 获取上一个元素
+    fn prev(&self) -> Self::Item;
+}
+

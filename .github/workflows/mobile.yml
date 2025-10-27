@@ -1,0 +1,88 @@
+name: Mobile Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  android-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: 
+          - aarch64-linux-android
+          - armv7-linux-androideabi
+          - i686-linux-android
+          - x86_64-linux-android
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust toolchain
+      run: |
+        rustup update stable
+        rustup default stable
+        rustup target add ${{ matrix.target }}
+        
+    - name: Install Android NDK
+      run: |
+        # Install Android NDK via SDK Manager
+        echo "y" | sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "ndk;25.1.8937393"
+        echo "Installed Android NDK"
+        
+    - name: Setup cargo-ndk
+      run: |
+        cargo install cargo-ndk
+        rustup component add rust-std-${{ matrix.target }}
+        
+    - name: Build for Android
+      run: |
+        export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393
+        cargo ndk -t ${{ matrix.target }} -o app/src/main/jniLibs build --release
+      env:
+        ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+        
+    - name: Upload Android artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: mingbu-android-${{ matrix.target }}
+        path: |
+          target/${{ matrix.target }}/release/libmingbu.so
+          
+  ios-build:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: 
+          - aarch64-apple-ios
+          - x86_64-apple-ios
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust toolchain
+      run: |
+        rustup update stable
+        rustup default stable
+        rustup target add ${{ matrix.target }}
+        
+    - name: Install iOS toolchain
+      run: |
+        rustup target add aarch64-apple-ios x86_64-apple-ios
+        echo "iOS toolchain installed"
+        
+    - name: Build for iOS
+      run: |
+        cargo build --target ${{ matrix.target }} --release
+        
+    - name: Upload iOS artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: mingbu-ios-${{ matrix.target }}
+        path: |
+          target/${{ matrix.target }}/release/libmingbu.a

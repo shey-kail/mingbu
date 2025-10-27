@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::concepts::gan_zhi::ChineseName;
+use crate::concepts::traits::ChineseName;
 
 /// 五行关系枚举
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]

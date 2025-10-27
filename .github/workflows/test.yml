@@ -1,0 +1,56 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        toolchain: [stable]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust toolchain
+      run: |
+        rustup update ${{ matrix.toolchain }}
+        rustup default ${{ matrix.toolchain }}
+        
+    - name: Install build targets
+      run: |
+        rustup target add wasm32-unknown-unknown
+        
+    - name: Install Linux dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential pkg-config libssl-dev
+        
+    - name: Install dependencies
+      run: cargo fetch
+      
+    - name: Run tests
+      run: cargo test
+      
+    - name: Run tests for WebAssembly target
+      run: cargo test --target wasm32-unknown-unknown
+      
+    - name: Check code formatting
+      run: |
+        rustup component add rustfmt
+        cargo fmt --all -- --check
+        
+    - name: Check for unused dependencies
+      run: |
+        cargo install cargo-audit
+        cargo audit

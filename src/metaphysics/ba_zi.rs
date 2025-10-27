@@ -1,4 +1,5 @@
-use crate::concepts::gan_zhi::{GanZhi, WuXingTrait};
+use crate::concepts::gan_zhi::GanZhi;
+use crate::concepts::traits::WuXingTrait;
 use crate::concepts::wu_xing::WuXing;
 use crate::calendar::chinese::DateTime;
 use serde::Serialize;

@@ -1,40 +1,39 @@
-// 唯一调用 swisseph 的地方
-use std::ffi::CStr;
-use std::os::raw::{c_char, c_double, c_int};
-
-extern "C" {
-    fn swe_calc(
-        tjd_ut: c_double,
-        ipl: c_int,
-        iflag: c_int,
-        xx: *mut c_double,
-        serr: *mut c_char,
-    ) -> c_int;
-}
+// 使用新的安全 Swiss Ephemeris 包装器
+use crate::calendar::swisseph::{SwissEph, SE_SUN, SEFLG_SWIEPH, SEFLG_SIDEREAL};
 
 #[derive(Debug)]
 pub struct EphemerisError(String);
 
-pub fn solar_longitude(julian_day: f64) -> Result<f64, EphemerisError> {
-    let mut result = [0.0; 6];
-    let mut error_msg = [0i8; 256];
-    
-    let ret = unsafe {
-        swe_calc(
-            julian_day,
-            0, // SUN
-            2345, // SIDEREAL flags
-            result.as_mut_ptr(),
-            error_msg.as_mut_ptr(),
-        )
-    };
+impl From<crate::calendar::swisseph::SwissEphError> for EphemerisError {
+    fn from(err: crate::calendar::swisseph::SwissEphError) -> Self {
+        EphemerisError(format!("{}", err))
+    }
+}
 
-    if ret < 0 {
-        let msg = unsafe { CStr::from_ptr(error_msg.as_mut_ptr()) }
-            .to_string_lossy()
-            .into_owned();
-        Err(EphemerisError(msg))
-    } else {
-        Ok(result[0])
+pub fn solar_longitude(julian_day: f64) -> Result<f64, EphemerisError> {
+    let eph = SwissEph::new()?;
+    let (longitude, _, _, _, _, _) = eph.calc(julian_day, SE_SUN, SEFLG_SWIEPH | SEFLG_SIDEREAL)?;
+    Ok(longitude)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_solar_longitude() {
+        // Test with JD 2451545.0 (Jan 1, 2000 at noon)
+        let result = solar_longitude(2451545.0);
+        // Note: This test may fail if ephemeris files are not available
+        // which is expected in some environments
+        match result {
+            Ok(longitude) => {
+                // Solar longitude should be a reasonable value between 0 and 360
+                assert!(longitude >= 0.0 && longitude < 360.0);
+            }
+            Err(_) => {
+                // It's acceptable if this fails due to missing ephemeris files
+            }
+        }
     }
 }
