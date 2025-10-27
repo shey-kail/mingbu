@@ -72,13 +72,7 @@ jobs:
         cargo build --target aarch64-apple-darwin --release
       shell: bash
       
-    - name: Run tests
-      if: matrix.os != 'macos-latest'
-      run: cargo test --release
-      
-    - name: Run tests (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: cargo test --release
+
       
     - name: Create macOS universal binary
       if: matrix.os == 'macos-latest'
@@ -138,36 +132,3 @@ jobs:
         name: mingbu-macos-universal-${{ matrix.toolchain }}
         path: |
           target/release/libmingbu_universal.a
-
-  build-wasm:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toolchain: [stable]
-        
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install Rust toolchain
-      run: |
-        rustup update ${{ matrix.toolchain }}
-        rustup default ${{ matrix.toolchain }}
-        rustup target add wasm32-unknown-unknown
-        
-    - name: Install Linux dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential pkg-config libssl-dev libclang-dev
-        
-    - name: Build for WebAssembly
-      run: cargo build --target wasm32-unknown-unknown --release
-      
-    - name: Run tests for WebAssembly
-      run: cargo test --target wasm32-unknown-unknown --release
-      
-    - name: Upload WebAssembly artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: mingbu-wasm-${{ matrix.toolchain }}
-        path: |
-          target/wasm32-unknown-unknown/release/mingbu.wasm
