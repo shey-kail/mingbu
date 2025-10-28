@@ -137,6 +137,12 @@ int printf(const char *fmt, ...) { return 0; }
 int fprintf(void *stream, const char *fmt, ...) { return 0; }
 int sprintf(char *str, const char *fmt, ...) { return 0; }
 int snprintf(char *str, size_t size, const char *fmt, ...) { return 0; }
+
+// 替换 exit
+void exit(int status) {
+    // 在 Wasm/移动端，exit 会导致崩溃，静默忽略
+    return;
+}
 ```
 
 ---
@@ -158,45 +164,22 @@ pub use metaphysics::{ba_zi_json, qi_zheng_json};
 
 ### 2. `src/calendar/ephemeris.rs`
 ```rust
-// 唯一调用 swisseph 的地方
-use std::ffi::CStr;
-use std::os::raw::{c_char, c_double, c_int};
-
-extern "C" {
-    fn swe_calc(
-        tjd_ut: c_double,
-        ipl: c_int,
-        iflag: c_int,
-        xx: *mut c_double,
-        serr: *mut c_char,
-    ) -> c_int;
-}
+// 使用新的安全 Swiss Ephemeris 包装器
+use crate::calendar::swisseph::{SwissEph, SE_SUN, SEFLG_SWIEPH, SEFLG_SIDEREAL};
 
 #[derive(Debug)]
 pub struct EphemerisError(String);
 
-pub fn solar_longitude(julian_day: f64) -> Result<f64, EphemerisError> {
-    let mut result = [0.0; 6];
-    let mut error_msg = [0i8; 256];
-    
-    let ret = unsafe {
-        swe_calc(
-            julian_day,
-            0, // SUN
-            2345, // SIDEREAL flags
-            result.as_mut_ptr(),
-            error_msg.as_mut_ptr(),
-        )
-    };
-
-    if ret < 0 {
-        let msg = unsafe { CStr::from_ptr(error_msg.as_mut_ptr()) }
-            .to_string_lossy()
-            .into_owned();
-        Err(EphemerisError(msg))
-    } else {
-        Ok(result[0])
+impl From<crate::calendar::swisseph::SwissEphError> for EphemerisError {
+    fn from(err: crate::calendar::swisseph::SwissEphError) -> Self {
+        EphemerisError(format!("{}", err))
     }
+}
+
+pub fn solar_longitude(julian_day: f64) -> Result<f64, EphemerisError> {
+    let eph = SwissEph::new()?;
+    let (longitude, _, _, _, _, _) = eph.calc(julian_day, SE_SUN, SEFLG_SWIEPH | SEFLG_SIDEREAL)?;
+    Ok(longitude)
 }
 ```
 
