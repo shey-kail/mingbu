@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::os::raw::c_char;
 use crate::calendar::swisseph::{SwissEph, SE_SUN, SE_MOON, SE_MERCURY, SE_VENUS, SE_MARS, 
                                SE_JUPITER, SE_SATURN, SE_URANUS, SE_NEPTUNE, SE_PLUTO, SE_MEAN_NODE, 
                                SE_TRUE_NODE, SEFLG_SWIEPH, SEFLG_SIDEREAL};
@@ -609,7 +610,7 @@ impl Calculate {
         // Use Swiss Ephemeris to calculate houses if available
         match &self.eph {
             Some(eph) => {
-                match eph.houses(ut, self.location[1], self.location[0], house_system as i8) {
+                match eph.houses(ut, self.location[1], self.location[0], house_system as u8 as c_char) {
                     Ok((computed_cusps, ascmc)) => {
                         // Copy calculated cusps to the output array
                         for i in 0..std::cmp::min(13, cusps.len()) {

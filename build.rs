@@ -42,5 +42,8 @@ fn main() {
         }
     }
 
+    // 添加安全桩
+    builder.file("c_vendor/swisseph/safe_stubs.c");
+
     builder.compile("swisseph");
 }

@@ -222,7 +222,7 @@ impl SwissEph {
         flags: c_int,
     ) -> SwissResult<(f64, f64, f64, f64, f64, f64)> {
         let mut position = [0.0; 6]; // longitude, latitude, distance, longitude_speed, lat_speed, dist_speed
-        let mut error_msg = [0i8; 256];
+        let mut error_msg = [0u8; 256];
         
         let result = unsafe {
             swe_calc(
@@ -230,12 +230,12 @@ impl SwissEph {
                 body,
                 flags,
                 position.as_mut_ptr(),
-                error_msg.as_mut_ptr(),
+                error_msg.as_mut_ptr() as *mut c_char,
             )
         };
 
         if result < 0 {
-            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr()) };
+            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr() as *const c_char) };
             let error_str = error_cstr.to_string_lossy().into_owned();
             Err(SwissEphError::CalculationFailed(error_str))
         } else {
@@ -258,7 +258,7 @@ impl SwissEph {
         flags: c_int,
     ) -> SwissResult<(f64, f64, f64, f64, f64, f64)> {
         let mut position = [0.0; 6];
-        let mut error_msg = [0i8; 256];
+        let mut error_msg = [0u8; 256];
         
         let result = unsafe {
             swe_calc_ut(
@@ -266,12 +266,12 @@ impl SwissEph {
                 body,
                 flags,
                 position.as_mut_ptr(),
-                error_msg.as_mut_ptr(),
+                error_msg.as_mut_ptr() as *mut c_char,
             )
         };
 
         if result < 0 {
-            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr()) };
+            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr() as *const c_char) };
             let error_str = error_cstr.to_string_lossy().into_owned();
             Err(SwissEphError::CalculationFailed(error_str))
         } else {
@@ -327,7 +327,7 @@ impl SwissEph {
         longitude: f64, // longitude of planet
         latitude_planet: f64, // latitude of planet
     ) -> SwissResult<f64> {
-        let mut error_msg = [0i8; 256];
+        let mut error_msg = [0u8; 256];
         let pos = [longitude, latitude_planet];
         
         let result = unsafe {
@@ -337,12 +337,12 @@ impl SwissEph {
                 ecliptic_obliquity,
                 house_system,
                 pos.as_ptr(),
-                error_msg.as_mut_ptr(),
+                error_msg.as_mut_ptr() as *mut c_char,
             )
         };
 
         if result < 0.0 {
-            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr()) };
+            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr() as *const c_char) };
             let error_str = error_cstr.to_string_lossy().into_owned();
             Err(SwissEphError::CalculationFailed(error_str))
         } else {
@@ -375,19 +375,19 @@ impl SwissEph {
     /// Get the ayanamsa (precession correction)
     pub fn get_ayanamsa(&self, julian_day_et: f64) -> SwissResult<f64> {
         let mut ayanamsa = 0.0;
-        let mut error_msg = [0i8; 256];
+        let mut error_msg = [0u8; 256];
         
         let result = unsafe {
             swe_get_ayanamsa_ex(
                 julian_day_et,
                 0, // default flags
                 &mut ayanamsa,
-                error_msg.as_mut_ptr(),
+                error_msg.as_mut_ptr() as *mut c_char,
             )
         };
 
         if result < 0 {
-            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr()) };
+            let error_cstr = unsafe { CStr::from_ptr(error_msg.as_ptr() as *const c_char) };
             let error_str = error_cstr.to_string_lossy().into_owned();
             Err(SwissEphError::CalculationFailed(error_str))
         } else {
