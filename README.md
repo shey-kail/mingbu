@@ -48,7 +48,7 @@ sudo apt-get update
 sudo apt-get install -y build-essential pkg-config libssl-dev libclang-dev
 
 # 克隆并构建项目
-git clone <repository-url>
+git clone https://github.com/shey-kail/mingbu
 cd mingbu
 cargo build --release
 ```
@@ -57,7 +57,7 @@ cargo build --release
 
 ```bash
 # 克隆并构建项目
-git clone <repository-url>
+git clone https://github.com/shey-kail/mingbu
 cd mingbu
 cargo build --release
 ```
@@ -66,9 +66,9 @@ cargo build --release
 
 Windows通常不需要额外的系统依赖来编译Rust/C项目，但您需要确保已安装Visual Studio C++构建工具。
 
-```cmd
-REM 克隆并构建项目
-git clone <repository-url>
+```powershell
+# 克隆并构建项目
+git clone https://github.com/shey-kail/mingbu
 cd mingbu
 cargo build --release
 ```
@@ -110,4 +110,6 @@ mingbu = "0.1.0"
 ## 特别鸣谢
 
 本项目使用了 [Swiss Ephemeris](https://www.astro.com/swisseph/) 库作为天文学计算的基础。Swiss Ephemeris 是一个广泛使用的高精度天体历计算库，最初由Astrodienst开发。
+
+本项目在七政四余的实现上受到了 [Moria](https://sites.google.com/site/athomeprojects) 项目的启发。
 
