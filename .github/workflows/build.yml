@@ -29,8 +29,6 @@ jobs:
         
     - name: Install build targets
       run: |
-        # Install wasm target for all platforms
-        rustup target add wasm32-unknown-unknown
         # Add macOS cross-compilation targets only on macOS
         if [ "$RUNNER_OS" = "macOS" ]; then
           rustup target add x86_64-apple-darwin

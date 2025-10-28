@@ -23,11 +23,3 @@ pub fn to_json<T: Serialize>(result: &T) -> Result<String, MingbuError> {
         })
 }
 
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-pub fn to_json_js<T: Serialize>(result: &T) -> Result<String, JsValue> {
-    to_json(result).map_err(|e| JsValue::from_str(&e.to_string()))
-}

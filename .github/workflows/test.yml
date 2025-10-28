@@ -27,10 +27,6 @@ jobs:
         rustup update ${{ matrix.toolchain }}
         rustup default ${{ matrix.toolchain }}
         
-    - name: Install build targets
-      run: |
-        rustup target add wasm32-unknown-unknown
-        
     - name: Install Linux dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -42,9 +38,6 @@ jobs:
       
     - name: Run tests
       run: cargo test
-      
-    - name: Run tests for WebAssembly target
-      run: cargo test --target wasm32-unknown-unknown
       
     - name: Check code formatting
       run: |

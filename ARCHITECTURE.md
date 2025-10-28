@@ -11,7 +11,7 @@
 | **项目名称** | `mingbu` |
 | **主要用途** | 中国传统术数计算库（八字、七政四余等） |
 | **核心依赖** | Swiss Ephemeris（AGPLv3 C 库） |
-| **目标平台** | WebAssembly、Linux、macOS、Windows、Android、iOS |
+| **目标平台** | Linux、macOS、Windows、Android、iOS |
 | **许可证** | GNU AGPLv3（因依赖 swisseph） |
 | **Rust Edition** | 2021 |
 | **模块系统** | Rust 2018+ 隐式模块（无 `mod.rs`） |
@@ -81,15 +81,8 @@ crate-type = ["rlib", "staticlib", "cdylib"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = "0.2"
-js-sys = "0.3"
-
 [dev-dependencies]
 serde_json = "1.0"
-
-[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-wasm-bindgen-test = "0.3"
 
 [build-dependencies]
 cc = "1.0"
@@ -144,12 +137,6 @@ int printf(const char *fmt, ...) { return 0; }
 int fprintf(void *stream, const char *fmt, ...) { return 0; }
 int sprintf(char *str, const char *fmt, ...) { return 0; }
 int snprintf(char *str, size_t size, const char *fmt, ...) { return 0; }
-
-// 替换 exit
-void exit(int status) {
-    // 在 Wasm/移动端，exit 会导致崩溃，静默忽略
-    return;
-}
 ```
 
 ---
@@ -269,15 +256,6 @@ pub fn to_json<T: Serialize>(result: &T) -> Result<String, MingbuError> {
             message: e.to_string(),
         })
 }
-
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen]
-pub fn to_json_js<T: Serialize>(result: &T) -> Result<String, JsValue> {
-    to_json(result).map_err(|e| JsValue::from_str(&e.to_string()))
-}
 ```
 
 ### 6. `src/metaphysics.rs`
@@ -359,12 +337,6 @@ use mingbu::metaphysics::ba_zi_json;
 let json = ba_zi_json(1990, 5, 15, 10)?;
 ```
 
-### WebAssembly
-```js
-import init, { ba_zi_json } from './pkg/mingbu.js';
-await init();
-const result = JSON.parse(ba_zi_json(1990, 5, 15, 10));
-```
 ```
 
 ---
@@ -388,7 +360,6 @@ const result = JSON.parse(ba_zi_json(1990, 5, 15, 10));
 
 | 平台 | 命令 | 输出路径 |
 |------|------|----------|
-| **Web** | `cargo build --target wasm32-unknown-unknown --release` | `target/wasm32-unknown-unknown/release/mingbu.wasm` |
 | **Linux** | `cargo build --release` | `target/release/libmingbu.a` |
 | **macOS** | `cargo build --release` | `target/release/libmingbu.a` |
 | **Windows** | `cargo build --release` | `target/release/mingbu.lib` |
