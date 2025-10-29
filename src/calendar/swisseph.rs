@@ -304,7 +304,7 @@ impl SwissEph {
         latitude_planet: f64, // latitude of planet
     ) -> SwissResult<f64> {
         let mut error_msg = [0u8; 256];
-        let pos = [longitude, latitude_planet];
+        let mut pos = [longitude, latitude_planet];
         
         let result = unsafe {
             swe_house_pos(
@@ -312,7 +312,7 @@ impl SwissEph {
                 latitude,
                 ecliptic_obliquity,
                 house_system as c_int,
-                pos.as_mut_ptr() as *mut f64, // Convert const ptr to mut ptr
+                pos.as_mut_ptr(),
                 error_msg.as_mut_ptr() as *mut c_char,
             )
         };
@@ -350,14 +350,14 @@ impl SwissEph {
 
     /// Get the ayanamsa (precession correction)
     pub fn get_ayanamsa(&self, julian_day_et: f64) -> SwissResult<f64> {
-        let mut ayanamsa = 0.0;
+        let mut ayanamsa_value = 0.0;
         let mut error_msg = [0u8; 256];
         
         let result = unsafe {
             swe_get_ayanamsa_ex(
                 julian_day_et,
                 0, // default flags
-                &mut ayanamsa,
+                &mut ayanamsa_value,
                 error_msg.as_mut_ptr() as *mut c_char,
             )
         };
@@ -367,7 +367,7 @@ impl SwissEph {
             let error_str = error_cstr.to_string_lossy().into_owned();
             Err(SwissEphError::CalculationFailed(error_str))
         } else {
-            Ok(ayanamsa)
+            Ok(ayanamsa_value)
         }
     }
 
