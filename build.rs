@@ -52,13 +52,12 @@ fn main() {
     // 生成绑定
     let bindings = bindgen::Builder::default()
         .header("c_vendor/swisseph/swephexp.h")
-        .header("c_vendor/swisseph/sweph.h")
-        .header("c_vendor/swisseph/swephlib.h")
-        .header("c_vendor/swisseph/sweodef.h")
-        .header("c_vendor/swisseph/swenut2000a.h")
-        .header("c_vendor/swisseph/swehouse.h")
-        .header("c_vendor/swisseph/swejpl.h")
         .clang_arg("-Ic_vendor/swisseph")
+        .allowlist_function("swe_.*")
+        .allowlist_type("swed_.*")
+        .allowlist_var("SE_.*")
+        .allowlist_var("swe_.*")
+        .blocklist_item("FP_.*") // Blocklist floating point constants to avoid duplicates
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
