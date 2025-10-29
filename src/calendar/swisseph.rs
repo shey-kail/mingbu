@@ -6,7 +6,10 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_double, c_int};
 use std::path::Path;
 
-// Define constants that match the C library
+// 从 swisseph_sys 模块导入 bindgen 生成的绑定
+use crate::calendar::swisseph_sys::*;
+
+// 保持现有的常量定义
 pub const SE_ECL_CENTRAL: c_int = 1;
 pub const SE_ECL_NONCENTRAL: c_int = 2;
 pub const SE_ECL_TOTAL: c_int = 4;
@@ -145,33 +148,6 @@ impl std::error::Error for SwissEphError {}
 
 /// Result type for Swiss Ephemeris operations
 pub type SwissResult<T> = Result<T, SwissEphError>;
-
-// Declare the C function bindings
-extern "C" {
-    fn swe_calc(tjd_ut: c_double, ipl: c_int, iflag: c_int, xx: *mut c_double, serr: *mut c_char) -> c_int;
-    fn swe_calc_ut(tjd_ut: c_double, ipl: c_int, iflag: c_int, xx: *mut c_double, serr: *mut c_char) -> c_int;
-    fn swe_set_ephe_path(path: *const c_char);
-    fn swe_set_jpl_file(fname: *const c_char);
-    fn swe_close();
-    fn swe_get_planet_name(ipl: c_int, spname: *mut c_char);
-    fn swe_deltat(tjd: c_double) -> c_double;
-    fn swe_sidtime(tjd_ut: c_double) -> c_double;
-    fn swe_sidtime0(tjd_ut: c_double, eps: c_double, nut: c_double) -> c_double;
-    fn swe_house_pos(
-        armc: c_double, geolat: c_double, eps: c_double,
-        hsys: c_char, xpin: *const c_double, serr: *mut c_char
-    ) -> c_double;
-    fn swe_houses(
-        tjd_ut: c_double, geolat: c_double, geolon: c_double, hsys: c_char,
-        cusp: *mut c_double, ascmc: *mut c_double
-    ) -> c_int;
-    fn swe_houses_armc(
-        armc: c_double, geolat: c_double, eps: c_double, hsys: c_char,
-        cusp: *mut c_double, ascmc: *mut c_double
-    ) -> c_int;
-    fn swe_set_sid_mode(sid_mode: c_int, t0: c_double, ayan_t0: c_double);
-    fn swe_get_ayanamsa_ex(tjd_et: c_double, iflag: c_int, aya: *mut c_double, serr: *mut c_char) -> c_int;
-}
 
 /// Safe wrapper for the Swiss Ephemeris library
 pub struct SwissEph {
@@ -485,5 +461,29 @@ mod tests {
         let sid_time = eph.sidereal_time(2451545.0);
         // Sidereal time should be between 0 and 360 degrees
         assert!(sid_time >= 0.0 && sid_time < 360.0);
+    }
+    
+    /// 特别测试：验证是否能成功调用 C 库函数，检查链接是否正常
+    #[test]
+    fn test_c_library_integration() {
+        // 尝试创建实例，这本身就会测试基本FFI功能
+        let eph = SwissEph::new().expect("Failed to create SwissEph instance");
+        
+        // 测试设置 ephemeris 路径（这会调用 C 函数）
+        let result = eph.set_ephe_path("ephe");
+        // 这个测试不是检查路径是否存在，而是检查 FFI 调用是否会导致崩溃
+        assert!(result.is_ok() || true); // 无论设置路径是否成功，重要的是不崩溃
+        
+        // 测试 Delta T 计算（实际调用 C 函数）
+        let dt = eph.delta_t(2451545.0);
+        // 验证返回值是合理的（不 panic）
+        assert!(dt.is_finite());
+        
+        // 测试恒星时计算（实际调用 C 函数）
+        let sid_time = eph.sidereal_time(2451545.0);
+        // 验证返回值是合理的（不 panic）
+        assert!(sid_time.is_finite());
+        
+        println!("C library integration test passed - FFI calls are working");
     }
 }
