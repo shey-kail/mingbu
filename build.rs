@@ -2,6 +2,8 @@
 use std::env;
 use std::fs;
 
+use bindgen;
+
 fn main() {
     println!("cargo:rerun-if-changed=c_vendor/swisseph/");
     
@@ -46,4 +48,25 @@ fn main() {
     builder.file("c_vendor/swisseph/safe_stubs.c");
 
     builder.compile("swisseph");
+
+    // 生成绑定
+    let bindings = bindgen::Builder::default()
+        .header("c_vendor/swisseph/swephexp.h")
+        .header("c_vendor/swisseph/sweph.h")
+        .header("c_vendor/swisseph/swedate.h")
+        .header("c_vendor/swisseph/swephlib.h")
+        .header("c_vendor/swisseph/sweodef.h")
+        .header("c_vendor/swisseph/swenut2000a.h")
+        .header("c_vendor/swisseph/swehouse.h")
+        .header("c_vendor/swisseph/swejpl.h")
+        .header("c_vendor/swisseph/sweephe4.h")
+        .clang_arg("-Ic_vendor/swisseph")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let out_dir = env::var("OUT_DIR").unwrap();
+    bindings
+        .write_to_file(format!("{}/swisseph_bindings.rs", out_dir))
+        .expect("Couldn't write bindings!");
 }
