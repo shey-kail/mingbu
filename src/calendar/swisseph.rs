@@ -278,7 +278,7 @@ impl SwissEph {
                 julian_day_ut,
                 latitude,
                 longitude,
-                house_system,
+                house_system as c_int,
                 cusps.as_mut_ptr(),
                 ascmc.as_mut_ptr(),
             )
@@ -311,8 +311,8 @@ impl SwissEph {
                 armc,
                 latitude,
                 ecliptic_obliquity,
-                house_system,
-                pos.as_ptr(),
+                house_system as c_int,
+                pos.as_mut_ptr() as *mut f64, // Convert const ptr to mut ptr
                 error_msg.as_mut_ptr() as *mut c_char,
             )
         };
