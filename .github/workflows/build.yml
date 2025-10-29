@@ -130,3 +130,13 @@ jobs:
         name: mingbu-macos-universal-${{ matrix.toolchain }}
         path: |
           target/release/libmingbu_universal.a
+
+  debug-ssh:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()  # 无论成功还是失败都会运行
+    steps:
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true  # 限制访问到触发工作流的用户
