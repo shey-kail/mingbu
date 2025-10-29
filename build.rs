@@ -53,15 +53,13 @@ fn main() {
     let bindings = bindgen::Builder::default()
         .header("c_vendor/swisseph/swephexp.h")
         .header("c_vendor/swisseph/sweph.h")
-        .header("c_vendor/swisseph/swedate.h")
         .header("c_vendor/swisseph/swephlib.h")
         .header("c_vendor/swisseph/sweodef.h")
         .header("c_vendor/swisseph/swenut2000a.h")
         .header("c_vendor/swisseph/swehouse.h")
         .header("c_vendor/swisseph/swejpl.h")
-        .header("c_vendor/swisseph/sweephe4.h")
         .clang_arg("-Ic_vendor/swisseph")
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
 
