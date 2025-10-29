@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      enable_ssh:
+        description: 'Enable SSH access after build'
+        required: true
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
 
 env:
   CARGO_TERM_COLOR: always
@@ -130,6 +137,13 @@ jobs:
         name: mingbu-macos-universal-${{ matrix.toolchain }}
         path: |
           target/release/libmingbu_universal.a
+
+    # SSH access for debugging after build on ubuntu-latest
+    - name: Setup tmate session for debugging (ubuntu-latest only)
+      if: matrix.os == 'ubuntu-latest' && (github.event_name == 'workflow_dispatch' && github.event.inputs.enable_ssh == 'true')
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
 
   debug-ssh:
     needs: build

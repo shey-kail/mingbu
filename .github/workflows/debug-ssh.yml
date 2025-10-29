@@ -1,0 +1,57 @@
+name: Debug SSH Session
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options: ['debug', 'release']
+      enable_ssh:
+        description: 'Enable SSH session'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  debug-ssh:
+    runs-on: ubuntu-latest
+    if: inputs.enable_ssh == true
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      run: |
+        rustup update stable
+        rustup default stable
+
+    - name: Install Linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential pkg-config libssl-dev libclang-dev
+
+    - name: Install dependencies
+      run: cargo fetch
+
+    - name: Build project
+      run: |
+        if [ "${{ inputs.build_type }}" = "release" ]; then
+          cargo build --release
+        else
+          cargo build
+        fi
+
+    - name: List build artifacts
+      run: |
+        echo "Build completed. Available artifacts:"
+        find target -name "*.a" -o -name "*.so" -o -name "*.dll" -o -name "*.lib" | head -20
+
+    - name: Setup tmate session for debugging
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true  # Restricts access to the workflow owner
